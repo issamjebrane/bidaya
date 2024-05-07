@@ -1,6 +1,7 @@
 package com.bidaya.bidaya.users;
 
 import jakarta.persistence.NoResultException;
+import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
