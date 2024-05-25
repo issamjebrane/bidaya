@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -15,7 +16,6 @@ public class UserController {
     private final UserRepository userRepository;
     UserController(UserRepository userRepository){
         this.userRepository = userRepository;
-
     }
 
     @GetMapping("")
@@ -46,8 +46,8 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user){
-        User userExist = this.userRepository.findByEmail(user.getEmail());
-        if(userExist != null){
+        Optional<User> userExist = this.userRepository.findByEmail(user.getEmail());
+        if(userExist.isPresent()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email Already Exists");
         }
         User registeredUser = this.userRepository.save(user);
