@@ -19,23 +19,12 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
-//        .csrf(AbstractHttpConfigurer::disable) // Updated CSRF configuration
-//                .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("").permitAll() // Define your public endpoints
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .permitAll()
-//                )
-//                .logout(LogoutConfigurer::permitAll);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf()
-                .disable()
+                .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**")
-                .permitAll()
+//                .requestMatchers("/api/v1/auth/**", "/api/v1/auth/projects/**", "/api/v1/auth/users/**").permitAll()
+                .requestMatchers("/api/v1/auth/**", "/api/v1/auth/projects/**", "/api/v1/auth/users/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -44,7 +33,6 @@ public class SecurityConfiguration {
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
