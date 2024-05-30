@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/auth/projects")
+@RequestMapping("/api/v1/projects")
 public class ProjectController {
 
     private ProjectRepository projectRepository;

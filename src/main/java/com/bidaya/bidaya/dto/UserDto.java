@@ -1,20 +1,16 @@
-package com.bidaya.bidaya.Auth;
+package com.bidaya.bidaya.dto;
 
-import com.bidaya.bidaya.projects.Project;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class RegisterRequest {
+public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
 }

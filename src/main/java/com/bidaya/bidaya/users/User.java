@@ -1,7 +1,6 @@
 package com.bidaya.bidaya.users;
 
 import com.bidaya.bidaya.projects.Project;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
