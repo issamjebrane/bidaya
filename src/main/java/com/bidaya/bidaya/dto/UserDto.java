@@ -1,5 +1,6 @@
 package com.bidaya.bidaya.dto;
 
+import com.bidaya.bidaya.users.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserDto {
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;
+    private Role role;
 }

@@ -2,6 +2,7 @@ package com.bidaya.bidaya.users;
 
 import ch.qos.logback.core.boolex.Matcher;
 import com.bidaya.bidaya.Auth.AuthenticationRequest;
+import com.bidaya.bidaya.dto.UserDto;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -23,14 +25,23 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
 
-    @GetMapping("")
-    public List<User> getUsers(){
-        return this.userRepository.findAll();
+    @GetMapping("/all-users")
+    public List<UserDto> getUsers(){
+        return this.userRepository.findAll().stream()
+                .map(user -> {
+                    UserDto userDto = new UserDto();
+                    userDto.setId(user.getId());
+                    userDto.setFirstName(user.getFirstName());
+                    userDto.setLastName(user.getLastName());
+                    userDto.setEmail(user.getEmail());
+                    userDto.setRole(user.getRole());
+                    return userDto;
+                })
+                .collect(Collectors.toList());
     }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id){
-         this.userRepository.deleteById(id);
+        this.userRepository.deleteById(id);
         return ResponseEntity.ok("User deleted successfully");
     }
 
