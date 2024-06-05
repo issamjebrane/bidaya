@@ -21,8 +21,10 @@ public class Project {
     private String fundingGoal;
     private int durationDays;
 
+    @Enumerated(EnumType.STRING)
+    private ProjectType projectType;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
 }
