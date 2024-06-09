@@ -1,6 +1,7 @@
 package com.bidaya.bidaya.config;
 
 import com.bidaya.bidaya.Auth.TokenBlacklistService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,23 +35,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authorizationHeader.substring(7);
+        try {
+            jwtService.extractUsername(jwt);
+        } catch (ExpiredJwtException e) {
+            tokenBlacklistService.blacklist(jwt);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("JWT Token has expired");
+            return;
+        }
         userEmail = jwtService.extractUsername(jwt);
+
         if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if(jwtService.isTokenValid(jwt, userDetails)){
-                if (tokenBlacklistService.isBlacklisted(jwt)) {
+                if(jwtService.isTokenValid(jwt, userDetails)){
+                    if (tokenBlacklistService.isBlacklisted(jwt)) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("This token has been blacklisted.");
+                        return;
+                    }
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+                else {
+                    tokenBlacklistService.blacklist(jwt);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("This token has been blacklisted.");
+                    response.getWriter().write("Token Expired");
                     return;
                 }
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+
         }
         filterChain.doFilter(request,response);
     }
