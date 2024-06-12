@@ -54,6 +54,6 @@ public class ProjectController {
         response.put("message", "Image uploaded successfully");
         response.put("filename", filename);
         return ResponseEntity.ok(response);
-
     }
+
 }
