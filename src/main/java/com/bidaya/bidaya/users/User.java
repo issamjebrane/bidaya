@@ -1,8 +1,8 @@
 package com.bidaya.bidaya.users;
 
-import com.bidaya.bidaya.comments.Comments;
+import com.bidaya.bidaya.projects.Comments;
 import com.bidaya.bidaya.projects.Project;
-import com.bidaya.bidaya.rewards.Rewards;
+import com.bidaya.bidaya.projects.Rewards;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,8 +24,6 @@ public class User implements UserDetails {
     private Long id;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Project> projects = new ArrayList<>();
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Rewards> rewards = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comments> comments = new ArrayList<>();
     private String firstName;

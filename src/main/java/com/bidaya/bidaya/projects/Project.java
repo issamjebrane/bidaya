@@ -1,7 +1,5 @@
 package com.bidaya.bidaya.projects;
 
-import com.bidaya.bidaya.comments.Comments;
-import com.bidaya.bidaya.rewards.Rewards;
 import com.bidaya.bidaya.users.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,12 +21,14 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String description;
-    private String fundingGoal;
-    private int durationDays;
-
+    private String subtitle;
+    private int goal;
+    private int duration;
+    private String cardImage;
+    private String location;
+    private String subCategory;
     @Enumerated(EnumType.STRING)
-    private ProjectType projectType;
+    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -39,4 +39,9 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comments> comments = new ArrayList<>();
+
+    //one story per project
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Story story;
+
 }

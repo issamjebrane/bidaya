@@ -1,5 +1,7 @@
 package com.bidaya.bidaya.projects;
 
+import com.bidaya.bidaya.dto.ProjectDto;
+import com.bidaya.bidaya.projects.projectRepositories.ProjectRepository;
 import com.bidaya.bidaya.users.User;
 import com.bidaya.bidaya.users.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class ProjectController {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final ProjectService projectService;
 
     @GetMapping("")
     public List<Project> getProjects(){
@@ -34,12 +37,23 @@ public class ProjectController {
         return this.projectRepository.findById(id);
     }
 
+
     @PostMapping("/add")
-    public Project addProject(@RequestBody Project project, @RequestParam Long id){
-        User user = this.userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return this.projectRepository.save(project);
+    public ResponseEntity<?> addProject(@RequestBody ProjectDto data) throws IOException {
+        Optional<User> user = userRepository.findByEmail(data.getUserId());
+        if (user.isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User not found");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        this.projectService.createProject(data,user.get());
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Project created successfully");
+        return ResponseEntity.ok(response);
     }
-    // upload image to backend using http://localhost:8080/api/v1/projects/upload endpoint
+
+
     @PostMapping("/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
         String directory = "uploads";
