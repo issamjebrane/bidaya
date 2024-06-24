@@ -1,7 +1,12 @@
 package com.bidaya.bidaya.projects;
 
+import com.bidaya.bidaya.dto.Basics;
 import com.bidaya.bidaya.dto.ProjectDto;
+import com.bidaya.bidaya.dto.StoryDto;
 import com.bidaya.bidaya.projects.projectRepositories.ProjectRepository;
+import com.bidaya.bidaya.projects.projectRepositories.QuestionsRepository;
+import com.bidaya.bidaya.projects.projectRepositories.RewardsRepository;
+import com.bidaya.bidaya.projects.projectRepositories.StoryRepository;
 import com.bidaya.bidaya.users.User;
 import com.bidaya.bidaya.users.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,15 +31,22 @@ public class ProjectController {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectService projectService;
+    private final StoryRepository storyRepository;
+    private final QuestionsRepository questionsRepository;
+    private final RewardsRepository rewardsRepository;
+
 
     @GetMapping("")
     public List<Project> getProjects(){
         return this.projectRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Optional<Project> getProject(@PathVariable Long id ){
-        return this.projectRepository.findById(id);
+    @GetMapping("/project/{id}")
+    public Object getProject(@PathVariable Long id){
+
+       HashMap<String, Object> response = new HashMap<>();
+       response.put("project", "hello");
+       return response;
     }
 
 

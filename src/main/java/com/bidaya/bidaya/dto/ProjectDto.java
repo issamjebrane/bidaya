@@ -1,7 +1,6 @@
 package com.bidaya.bidaya.dto;
 
 import com.bidaya.bidaya.projects.Rewards;
-import com.bidaya.bidaya.projects.Story;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProjectDto {
-    private Story story;
+    private StoryDto story;
     private List<Rewards> rewards;
     private Basics basics;
     private String userId;

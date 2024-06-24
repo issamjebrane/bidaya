@@ -1,7 +1,9 @@
 package com.bidaya.bidaya.projects;
 
+import com.bidaya.bidaya.dto.Basics;
 import com.bidaya.bidaya.dto.ProjectDto;
 import com.bidaya.bidaya.dto.Question;
+import com.bidaya.bidaya.dto.StoryDto;
 import com.bidaya.bidaya.projects.projectRepositories.ProjectRepository;
 import com.bidaya.bidaya.projects.projectRepositories.QuestionsRepository;
 import com.bidaya.bidaya.projects.projectRepositories.RewardsRepository;
@@ -92,9 +94,42 @@ public class ProjectService {
         return project;
     }
 
+    @Transactional
+    public StoryDto getProject(Long id) {
+        Project project =  this.projectRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Project not found")
+        );
+        Basics basics = Basics.builder()
+                .title(project.getTitle())
+                .subtitle(project.getSubtitle())
+                .goal(project.getGoal())
+                .duration(project.getDuration())
+                .cardImage(project.getCardImage())
+                .location(project.getLocation())
+                .subCategory(project.getSubCategory())
+                .category(project.getCategory().name())
+                .build();
+        Story story = this.storyRepository.findByProjectId(project.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Story not found")
+        );
+        List<Optional<Rewards>> rewards = this.rewardsRepository.findByProjectId(project.getId());
+        List<Rewards> rewardsList = rewards.stream().map(Optional::get).toList();
+        List<Optional<Questions>> questions = this.questionsRepository.findByStoryId(story.getId());
+        List<Questions> questionsList = questions.stream().map(Optional::get).toList();
+        StoryDto storyDto = StoryDto.builder()
+                .fileUrl(story.getFileUrl())
+                .videoUrl(story.getVideoUrl())
+                .editorContent(story.getEditorContent())
+                .questions(questionsList)
+                .build();
+        ProjectDto projectDto = ProjectDto.builder()
+                .story(storyDto)
+                .rewards(rewardsList)
+                .basics(basics)
+                .userId(project.getUser().getEmail())
+                .build();
 
-    public Project getProject(Long id) {
-        return projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found"));
+        return storyDto;
     }
 
     public void deleteProject(Long id) {
