@@ -1,11 +1,11 @@
 package com.bidaya.bidaya.dto;
 
-import com.bidaya.bidaya.projects.Rewards;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -14,7 +14,8 @@ import java.util.List;
 @Builder
 public class ProjectDto {
     private StoryDto story;
-    private List<Rewards> rewards;
+    private List<RewardsDto> rewards;
     private Basics basics;
     private String userId;
+    private LocalDate creationDate;
 }

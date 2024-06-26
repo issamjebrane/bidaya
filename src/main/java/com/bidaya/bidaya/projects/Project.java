@@ -4,6 +4,7 @@ import com.bidaya.bidaya.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 // todo 1.1: Create a Project entity with the following fields:
@@ -27,6 +28,7 @@ public class Project {
     private String cardImage;
     private String location;
     private String subCategory;
+    private LocalDate creationDate;
     @Enumerated(EnumType.STRING)
     private Category category;
 

@@ -1,9 +1,6 @@
 package com.bidaya.bidaya.projects;
 
-import com.bidaya.bidaya.dto.Basics;
-import com.bidaya.bidaya.dto.ProjectDto;
-import com.bidaya.bidaya.dto.Question;
-import com.bidaya.bidaya.dto.StoryDto;
+import com.bidaya.bidaya.dto.*;
 import com.bidaya.bidaya.projects.projectRepositories.ProjectRepository;
 import com.bidaya.bidaya.projects.projectRepositories.QuestionsRepository;
 import com.bidaya.bidaya.projects.projectRepositories.RewardsRepository;
@@ -12,11 +9,13 @@ import com.bidaya.bidaya.users.User;
 import com.bidaya.bidaya.users.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +46,7 @@ public class ProjectService {
                 .subCategory(projectData.getBasics().getSubCategory())
                 .category(Category.valueOf(projectData.getBasics().getCategory())) // Ensure enum value is valid
                 .user(user)
+                .creationDate(LocalDate.now())
                 .build();
 
         project = projectRepository.save(project);
@@ -62,20 +62,20 @@ public class ProjectService {
         storyRepository.save(story);
 
         // Create new questions
-        List<Questions> questions = projectData.getStory().getQuestions();
-        if (questions != null) {
-            questions.forEach(questionDto -> {
-                Questions question = Questions.builder()
+        List<Question> question = projectData.getStory().getQuestion();
+        if (question != null) {
+            question.forEach(questionDto -> {
+                Questions questions = Questions.builder()
                         .question(questionDto.getQuestion())
                         .answer(questionDto.getAnswer())
                         .story(story)
                         .build();
-                questionsRepository.save(question);
+                questionsRepository.save(questions);
             });
         }
 
         // Create new rewards
-        List<Rewards> rewards = projectData.getRewards();
+        List<Rewards> rewards = project.getRewards();
         Project finalProject = project;
         if (rewards != null) {
             rewards.forEach(rewardDto -> {
@@ -95,7 +95,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public StoryDto getProject(Long id) {
+    public ProjectDto getProject(Long id) {
         Project project =  this.projectRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Project not found")
         );
@@ -112,24 +112,53 @@ public class ProjectService {
         Story story = this.storyRepository.findByProjectId(project.getId()).orElseThrow(
                 () -> new IllegalArgumentException("Story not found")
         );
-        List<Optional<Rewards>> rewards = this.rewardsRepository.findByProjectId(project.getId());
-        List<Rewards> rewardsList = rewards.stream().map(Optional::get).toList();
-        List<Optional<Questions>> questions = this.questionsRepository.findByStoryId(story.getId());
-        List<Questions> questionsList = questions.stream().map(Optional::get).toList();
+        List<Rewards> rewards = this.rewardsRepository.findByProjectId(project.getId());
+
+        if (rewards == null) {
+            // Initialize the list to an empty list if the repository returns null
+            rewards = new ArrayList<>();
+        }
+        List<RewardsDto> rewardsDtos = rewards.stream()
+                .map(reward -> RewardsDto.builder()
+                        .fileUrl(reward.getFileUrl())
+                        .estimatedDeliveryDate(reward.getEstimatedDeliveryDate())
+                        .contributionLevel(reward.getContributionLevel())
+                        .description(reward.getDescription())
+                        .title(reward.getTitle())
+                        .build()
+                ).toList();
+        List<Questions> questions = this.questionsRepository.findByStoryId(story.getId());
+        if (questions == null || questions.isEmpty()) {
+            // Handle the case where no questions are found
+            // For example, you can initialize the list to an empty list
+            questions = new ArrayList<>();
+        }
+        List<Question> questionDtos = questions.stream()
+                .map(question -> Question.builder()
+                        .question(question.getQuestion())
+                        .answer(question.getAnswer())
+                        .build())
+                .toList();
+
         StoryDto storyDto = StoryDto.builder()
                 .fileUrl(story.getFileUrl())
                 .videoUrl(story.getVideoUrl())
                 .editorContent(story.getEditorContent())
-                .questions(questionsList)
+                .question(questionDtos)
                 .build();
-        ProjectDto projectDto = ProjectDto.builder()
-                .story(storyDto)
-                .rewards(rewardsList)
-                .basics(basics)
-                .userId(project.getUser().getEmail())
+        UserDto userDto = UserDto.builder()
+                .email(project.getUser().getEmail())
+                .firstName(project.getUser().getFirstName())
+                .lastName(project.getUser().getLastName())
                 .build();
 
-        return storyDto;
+        return ProjectDto.builder()
+                .story(storyDto)
+                .rewards(rewardsDtos)
+                .basics(basics)
+                .userId(userDto.getEmail())
+                .creationDate(project.getCreationDate())
+                .build();
     }
 
     public void deleteProject(Long id) {

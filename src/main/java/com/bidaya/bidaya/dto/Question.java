@@ -13,5 +13,4 @@ import lombok.NoArgsConstructor;
 public class Question {
     private String question;
     private String answer;
-    private Story story;
 }

@@ -39,6 +39,21 @@ public class UserController {
                 })
                 .collect(Collectors.toList());
     }
+
+    @GetMapping("/user/{email}")
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email){
+        User user = this.userRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("User not found")
+        );
+        return ResponseEntity.ok().body(UserDto.builder()
+                        .email(user.getEmail())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .role(user.getRole())
+                        .id(user.getId())
+                .build());
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id){
         this.userRepository.deleteById(id);

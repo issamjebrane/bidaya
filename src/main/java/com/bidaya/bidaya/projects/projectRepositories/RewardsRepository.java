@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface RewardsRepository extends JpaRepository<Rewards, Long> {
-    List<Optional<Rewards>> findByProjectId(Long id);
+    List<Rewards> findByProjectId(Long id);
 }
