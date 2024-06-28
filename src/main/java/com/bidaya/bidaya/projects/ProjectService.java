@@ -9,6 +9,7 @@ import com.bidaya.bidaya.users.User;
 import com.bidaya.bidaya.users.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -62,7 +63,7 @@ public class ProjectService {
         storyRepository.save(story);
 
         // Create new questions
-        List<Question> question = projectData.getStory().getQuestion();
+        List<Question> question = projectData.getStory().getQuestions();
         if (question != null) {
             question.forEach(questionDto -> {
                 Questions questions = Questions.builder()
@@ -75,9 +76,10 @@ public class ProjectService {
         }
 
         // Create new rewards
-        List<Rewards> rewards = project.getRewards();
+        List<RewardsDto> rewards = projectData.getRewards();
         Project finalProject = project;
         if (rewards != null) {
+
             rewards.forEach(rewardDto -> {
                 Rewards reward = Rewards.builder()
                         .title(rewardDto.getTitle())
@@ -144,7 +146,7 @@ public class ProjectService {
                 .fileUrl(story.getFileUrl())
                 .videoUrl(story.getVideoUrl())
                 .editorContent(story.getEditorContent())
-                .question(questionDtos)
+                .questions(questionDtos)
                 .build();
         UserDto userDto = UserDto.builder()
                 .email(project.getUser().getEmail())
@@ -156,7 +158,7 @@ public class ProjectService {
                 .story(storyDto)
                 .rewards(rewardsDtos)
                 .basics(basics)
-                .userId(userDto.getEmail())
+                .userId(userDto)
                 .creationDate(project.getCreationDate())
                 .build();
     }
@@ -165,5 +167,15 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
+    @Transactional
+    public List<ProjectDto> getProjects() {
+        List<Project> projects = projectRepository.findAll();
+        List<ProjectDto> projectDtos;
+        projectDtos = projects.stream()
+                .map(project -> {
+                    return getProject(project.getId());
+                     }).toList();
+        return projectDtos;
+    }
 
 }

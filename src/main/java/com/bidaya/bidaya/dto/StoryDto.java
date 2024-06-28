@@ -17,5 +17,5 @@ public class StoryDto {
     private String videoUrl;
     @Lob
     private String editorContent;
-    private List<Question> question;
+    private List<Question> questions;
 }

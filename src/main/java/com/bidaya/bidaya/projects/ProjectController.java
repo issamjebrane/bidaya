@@ -43,8 +43,9 @@ public class ProjectController {
 
 
     @GetMapping("")
-    public List<Project> getProjects(){
-        return this.projectRepository.findAll();
+    public ResponseEntity<List<ProjectDto>> getProjects(){
+
+        return ResponseEntity.ok(this.projectService.getProjects());
     }
 
     @GetMapping("/project/{id}")
@@ -63,7 +64,7 @@ public class ProjectController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addProject(@RequestBody ProjectDto data) throws IOException {
-        Optional<User> user = userRepository.findByEmail(data.getUserId());
+        Optional<User> user = userRepository.findByEmail(data.getUserId().getEmail());
 
         if (user.isEmpty()) {
             Map<String, String> response = new HashMap<>();

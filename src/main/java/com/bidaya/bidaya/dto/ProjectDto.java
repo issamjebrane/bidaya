@@ -16,6 +16,6 @@ public class ProjectDto {
     private StoryDto story;
     private List<RewardsDto> rewards;
     private Basics basics;
-    private String userId;
+    private UserDto userId;
     private LocalDate creationDate;
 }
