@@ -102,6 +102,7 @@ public class ProjectService {
                 () -> new IllegalArgumentException("Project not found")
         );
         Basics basics = Basics.builder()
+                .id(project.getId())
                 .title(project.getTitle())
                 .subtitle(project.getSubtitle())
                 .goal(project.getGoal())
@@ -178,4 +179,42 @@ public class ProjectService {
         return projectDtos;
     }
 
+    @Transactional
+    public List<ProjectDto> getProjectsByCategory(String category) {
+        List<Project> projects = projectRepository.findByCategory(Category.valueOf(category));
+        List<ProjectDto> projectDtos;
+        projectDtos = projects.stream()
+                .map(project -> {
+                    return getProject(project.getId());
+                }).toList();
+        return projectDtos;
+    }
+
+    @Transactional
+    public List<ProjectDto> sortProjects(String criteria) {
+        List<Project> projects = List.of();
+        if (criteria.equals("Oldest")) {
+            projects = projectRepository.findAllByOrderByCreationDateAsc();
+        } else if (criteria.equals("Newest")) {
+            projects = projectRepository.findAllByOrderByCreationDateDesc();
+        }else if(criteria.equals("lowest")){
+            projects = projectRepository.findAllByOrderByGoalAsc();
+        }
+        else if(criteria.equals("highest")){
+            projects = projectRepository.findAllByOrderByGoalDesc();
+        }
+        return projects.stream()
+                .map(project -> {
+                    return getProject(project.getId());
+                }).toList();
+    }
+
+    @Transactional
+    public List<ProjectDto> searchProjects(String query) {
+        List<Project> projects = projectRepository.findByTitleContainingIgnoreCase(query);
+        return projects.stream()
+                .map(project -> {
+                    return getProject(project.getId());
+                }).toList();
+    }
 }

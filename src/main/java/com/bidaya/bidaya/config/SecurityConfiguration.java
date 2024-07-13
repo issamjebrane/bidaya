@@ -23,7 +23,7 @@ public class SecurityConfiguration {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**","/api/v1/users/user/**","/api/v1/projects/**","/api/v1/projects/images/","/api/v1/projects/project/**").permitAll()
+                .requestMatchers("/api/v1/auth/**","/api/v1/users/user/**","/api/v1/projects/**","/api/v1/projects/sort/","/api/v1/projects/images/","/api/v1/projects/project/**").permitAll()
                 .requestMatchers("/api/v1/projects/add").hasAnyRole("Admin","User")
                 .requestMatchers("/api/v1/users/all-users","/api/v1/users/delete/**").hasAnyRole("Admin")
                 .anyRequest()

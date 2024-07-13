@@ -112,4 +112,33 @@ public class ProjectController {
         }
     }
 
+    //get projects depending on the category
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByCategory(@PathVariable String category){
+        List<ProjectDto> projects = this.projectService.getProjectsByCategory(category);
+        if(projects.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(this.projectService.getProjectsByCategory(category));
+    }
+
+    //sort projects by crieteria
+    @GetMapping("/sort/{criteria}")
+    public ResponseEntity<List<ProjectDto>> sortProjects(@PathVariable String criteria){
+        List<ProjectDto> projects = this.projectService.sortProjects(criteria);
+        if(projects.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(this.projectService.sortProjects(criteria));
+    }
+
+//    search query
+    @GetMapping("/search")
+    public ResponseEntity<List<ProjectDto>> searchProjects(@RequestParam String query){
+        List<ProjectDto> projects = this.projectService.searchProjects(query);
+        if(projects.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(this.projectService.searchProjects(query));
+    }
 }

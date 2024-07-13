@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Basics {
+    private Long id;
     private String title;
     private String subtitle;
     private int goal;
