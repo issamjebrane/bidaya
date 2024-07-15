@@ -10,9 +10,8 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("https://bidaya.vercel.app/")
-                .allowedOriginPatterns("*")
+        registry.addMapping("/api/**")
+                .allowedOrigins("https://bidaya.vercel.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
