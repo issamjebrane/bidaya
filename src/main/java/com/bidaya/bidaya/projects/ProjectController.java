@@ -72,10 +72,10 @@ public class ProjectController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        this.projectService.createProject(data,user.get());
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Project created successfully");
-        return ResponseEntity.ok(response);
+        Project project = this.projectService.createProject(data,user.get());
+        ProjectDto projectDto = projectService.getProject(project.getId());
+
+        return ResponseEntity.ok(projectDto);
     }
 
     @PostMapping("/upload")
