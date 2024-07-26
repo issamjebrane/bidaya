@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,7 @@ public class AuthenticationService {
                 .email(registeredUser.getEmail())
                 .role(registeredUser.getRole())
                 .build();
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user.role,user);
 
         return AuthenticationResponse.builder()
                 .token(jwtToken).user(userDto)
@@ -61,7 +60,7 @@ public class AuthenticationService {
                 .role(user.getRole())
                 .id(user.getId())
                 .build();
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user.role,user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .user(userDto)

@@ -1,5 +1,6 @@
 package com.bidaya.bidaya.config;
 
+import com.bidaya.bidaya.users.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,8 +29,10 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
+    public String generateToken(Role role, UserDetails userDetails) {
+        Map<String,Object> extractClaims = new HashMap<>();
+        extractClaims.put("role",role);
+        return generateToken(extractClaims,userDetails);
     }
 
     public String generateToken(

@@ -23,6 +23,7 @@ public class Rewards {
     private String estimatedDeliveryDate;
     private String fileUrl;
 
+    private byte[] imageData;
 
     @ManyToOne
     @JoinColumn(name = "project_id")

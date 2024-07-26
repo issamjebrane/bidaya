@@ -31,6 +31,7 @@ public class Project {
     private LocalDate creationDate;
     @Enumerated(EnumType.STRING)
     private Category category;
+    private byte[] imageData;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

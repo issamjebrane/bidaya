@@ -6,30 +6,32 @@ import com.bidaya.bidaya.projects.projectRepositories.QuestionsRepository;
 import com.bidaya.bidaya.projects.projectRepositories.RewardsRepository;
 import com.bidaya.bidaya.projects.projectRepositories.StoryRepository;
 import com.bidaya.bidaya.users.User;
-import com.bidaya.bidaya.users.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
     private final StoryRepository storyRepository;
     private final QuestionsRepository questionsRepository;
     private final RewardsRepository rewardsRepository;
+    private final Path uploadDirectory = Paths.get("uploads");
 
     @Transactional
-    public Project createProject(ProjectDto projectData, User user) {
+    public Project createProject(ProjectDto projectData, User user) throws IOException {
 
         // Validate project data
         if (projectData == null || projectData.getBasics() == null) {
@@ -43,6 +45,7 @@ public class ProjectService {
                 .goal(projectData.getBasics().getGoal())
                 .duration(projectData.getBasics().getDuration())
                 .cardImage(projectData.getBasics().getCardImage())
+                .imageData(convertFileUrlToByte(projectData.getBasics().getCardImage()))
                 .location(projectData.getBasics().getLocation())
                 .subCategory(projectData.getBasics().getSubCategory())
                 .category(Category.valueOf(projectData.getBasics().getCategory())) // Ensure enum value is valid
@@ -56,6 +59,7 @@ public class ProjectService {
         Story story = Story.builder()
                 .editorContent(projectData.getStory().getEditorContent())
                 .fileUrl(projectData.getStory().getFileUrl())
+                .imageData(convertFileUrlToByte(projectData.getStory().getFileUrl()))
                 .videoUrl(projectData.getStory().getVideoUrl())
                 .project(project)
                 .build();
@@ -81,14 +85,20 @@ public class ProjectService {
         if (rewards != null) {
 
             rewards.forEach(rewardDto -> {
-                Rewards reward = Rewards.builder()
-                        .title(rewardDto.getTitle())
-                        .description(rewardDto.getDescription())
-                        .contributionLevel(rewardDto.getContributionLevel())
-                        .estimatedDeliveryDate(rewardDto.getEstimatedDeliveryDate())
-                        .fileUrl(rewardDto.getFileUrl())
-                        .project(finalProject)
-                        .build();
+                Rewards reward = null;
+                try {
+                    reward = Rewards.builder()
+                            .title(rewardDto.getTitle())
+                            .description(rewardDto.getDescription())
+                            .contributionLevel(rewardDto.getContributionLevel())
+                            .estimatedDeliveryDate(rewardDto.getEstimatedDeliveryDate())
+                            .fileUrl(rewardDto.getFileUrl())
+                            .imageData(convertFileUrlToByte(rewardDto.getFileUrl()))
+                            .project(finalProject)
+                            .build();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 rewardsRepository.save(reward);
             });
         }
@@ -108,6 +118,7 @@ public class ProjectService {
                 .goal(project.getGoal())
                 .duration(project.getDuration())
                 .cardImage(project.getCardImage())
+                .imageData(project.getImageData())
                 .location(project.getLocation())
                 .subCategory(project.getSubCategory())
                 .category(project.getCategory().name())
@@ -124,12 +135,14 @@ public class ProjectService {
         List<RewardsDto> rewardsDtos = rewards.stream()
                 .map(reward -> RewardsDto.builder()
                         .fileUrl(reward.getFileUrl())
+                        .imageData(reward.getImageData())
                         .estimatedDeliveryDate(reward.getEstimatedDeliveryDate())
                         .contributionLevel(reward.getContributionLevel())
                         .description(reward.getDescription())
                         .title(reward.getTitle())
                         .build()
                 ).toList();
+
         List<Questions> questions = this.questionsRepository.findByStoryId(story.getId());
         if (questions == null || questions.isEmpty()) {
             // Handle the case where no questions are found
@@ -145,6 +158,7 @@ public class ProjectService {
 
         StoryDto storyDto = StoryDto.builder()
                 .fileUrl(story.getFileUrl())
+                .imageData(story.getImageData())
                 .videoUrl(story.getVideoUrl())
                 .editorContent(story.getEditorContent())
                 .questions(questionDtos)
@@ -173,9 +187,7 @@ public class ProjectService {
         List<Project> projects = projectRepository.findAll();
         List<ProjectDto> projectDtos;
         projectDtos = projects.stream()
-                .map(project -> {
-                    return getProject(project.getId());
-                     }).toList();
+                .map(project -> getProject(project.getId())).toList();
         return projectDtos;
     }
 
@@ -184,9 +196,7 @@ public class ProjectService {
         List<Project> projects = projectRepository.findByCategory(Category.valueOf(category));
         List<ProjectDto> projectDtos;
         projectDtos = projects.stream()
-                .map(project -> {
-                    return getProject(project.getId());
-                }).toList();
+                .map(project -> getProject(project.getId())).toList();
         return projectDtos;
     }
 
@@ -204,17 +214,20 @@ public class ProjectService {
             projects = projectRepository.findAllByOrderByGoalDesc();
         }
         return projects.stream()
-                .map(project -> {
-                    return getProject(project.getId());
-                }).toList();
+                .map(project -> getProject(project.getId())).toList();
     }
 
     @Transactional
     public List<ProjectDto> searchProjects(String query) {
         List<Project> projects = projectRepository.findByTitleContainingIgnoreCase(query);
         return projects.stream()
-                .map(project -> {
-                    return getProject(project.getId());
-                }).toList();
+                .map(project -> getProject(project.getId())).toList();
     }
+
+    public byte[] convertFileUrlToByte(String fileUrl) throws IOException {
+        Path filePath = uploadDirectory.resolve(fileUrl);
+            return Files.readAllBytes(filePath);
+    }
+
+
 }

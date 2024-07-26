@@ -18,4 +18,5 @@ public class StoryDto {
     @Lob
     private String editorContent;
     private List<Question> questions;
+    private byte[] imageData;
 }

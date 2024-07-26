@@ -20,6 +20,7 @@ public class Story {
     private String videoUrl;
     @Lob
     private String editorContent;
+    private byte[] imageData;
 
     @OneToOne
     @JoinColumn(name = "project_id")

@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.bidaya.bidaya.config.JwtService;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +18,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final TokenBlacklistService tokenBlacklistService;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -35,7 +36,16 @@ public class AuthenticationController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        String jwt = token.substring(7);
+        String username = jwtService.extractUsername(jwt);
+        //if User does not exist we send back a 404
+        Optional<User> user = userRepository.findByEmail(username);
+        if(user.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
         tokenBlacklistService.blacklist(token.replace("Bearer ", ""));
         return ResponseEntity.ok().build();
     }
+
 }

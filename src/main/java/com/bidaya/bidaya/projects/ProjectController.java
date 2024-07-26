@@ -1,24 +1,22 @@
 package com.bidaya.bidaya.projects;
 
+import com.bidaya.bidaya.dto.Basics;
 import com.bidaya.bidaya.dto.ProjectDto;
-import com.bidaya.bidaya.projects.projectRepositories.ProjectRepository;
-import com.bidaya.bidaya.projects.projectRepositories.QuestionsRepository;
-import com.bidaya.bidaya.projects.projectRepositories.RewardsRepository;
-import com.bidaya.bidaya.projects.projectRepositories.StoryRepository;
+import com.bidaya.bidaya.projects.projectRepositories.*;
 import com.bidaya.bidaya.users.User;
 import com.bidaya.bidaya.users.UserRepository;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -40,7 +37,7 @@ public class ProjectController {
     private final QuestionsRepository questionsRepository;
     private final RewardsRepository rewardsRepository;
     private final Path uploadDirectory = Paths.get("uploads");
-
+    private final ImageRepository imageRepository;
 
     @GetMapping("")
     public ResponseEntity<List<ProjectDto>> getProjects(){
@@ -52,7 +49,6 @@ public class ProjectController {
     public ResponseEntity<Object> getProject(@PathVariable Long id) {
         try {
             ProjectDto projectDto = projectService.getProject(id);
-
             return ResponseEntity.ok(projectDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
@@ -80,17 +76,16 @@ public class ProjectController {
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
-        String directory = "uploads";
-        Path dirPath = Paths.get(directory);
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
+        //check if the directory exists
+        if (!Files.exists(uploadDirectory)) {
+            Files.createDirectories(uploadDirectory);
         }
-        String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path filePath = dirPath.resolve(filename);
-        file.transferTo(filePath);
+        String fileNameMilli = System.currentTimeMillis() + file.getOriginalFilename();
+        Path filePath = uploadDirectory.resolve(fileNameMilli);
+        Files.copy(file.getInputStream(), filePath);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Image uploaded successfully");
-        response.put("filename", filename);
+        response.put("filename", fileNameMilli);
         return ResponseEntity.ok(response);
     }
 
@@ -110,6 +105,36 @@ public class ProjectController {
         } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/uploadImage")
+    public ResponseEntity<?> uploadImages(@RequestParam("file") String file) throws IOException {
+
+        Path filePath = uploadDirectory.resolve(file);
+
+        Imagedata imagedata = Imagedata.builder()
+                .imageName(file)
+                .imageData(projectService.convertFileUrlToByte(file))
+//                .imageType(file.getContentType())
+                .build();
+        imageRepository.save(imagedata);
+        Map<String,String> response = new HashMap<>();
+        response.put("message","Image uploaded successfully");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getImage/{id}")
+    public ResponseEntity<?> getImage(@PathVariable Long id){
+        Project project = projectRepository.findById(id).orElseThrow();
+        Basics basics = Basics.builder()
+                .id(project.getId())
+                .imageData(project.getImageData())
+                .cardImage(project.getCardImage())
+                .title(project.getTitle())
+                .build();
+        Map<String, Object> response = new HashMap<>();
+        return ResponseEntity.ok()
+                .body(basics);
     }
 
     //get projects depending on the category

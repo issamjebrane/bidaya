@@ -1,5 +1,6 @@
 package com.bidaya.bidaya.dto;
 
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ public class Basics {
     private int goal;
     private int duration;
     private String cardImage;
+    private byte[] imageData;
     private String location;
     private String subCategory;
     private String category;

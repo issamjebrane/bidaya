@@ -16,4 +16,5 @@ public class RewardsDto {
     private String description;
     private String estimatedDeliveryDate;
     private String fileUrl;
+    private byte[] imageData;
 }
