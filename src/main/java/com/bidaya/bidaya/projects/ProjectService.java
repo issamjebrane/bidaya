@@ -178,10 +178,6 @@ public class ProjectService {
                 .build();
     }
 
-    public void deleteProject(Long id) {
-        projectRepository.deleteById(id);
-    }
-
     @Transactional
     public List<ProjectDto> getProjects() {
         List<Project> projects = projectRepository.findAll();

@@ -21,4 +21,6 @@ public interface ProjectRepository extends JpaRepository<Project,Long> {
 
     List<Project> findAllByOrderByGoalDesc();
     List<Project> findByTitleContainingIgnoreCase(String title);
+    // find project with pagination
+
 }
