@@ -33,9 +33,6 @@ public class ProjectController {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectService projectService;
-    private final StoryRepository storyRepository;
-    private final QuestionsRepository questionsRepository;
-    private final RewardsRepository rewardsRepository;
     private final Path uploadDirectory = Paths.get("uploads");
     private final ImageRepository imageRepository;
 

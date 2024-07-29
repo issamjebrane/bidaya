@@ -1,5 +1,6 @@
 package com.bidaya.bidaya.dto;
 
+import com.bidaya.bidaya.projects.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +19,5 @@ public class ProjectDto {
     private Basics basics;
     private UserDto userId;
     private LocalDate creationDate;
+    private Status status;
 }

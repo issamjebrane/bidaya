@@ -48,7 +48,8 @@ public class ProjectService {
                 .imageData(convertFileUrlToByte(projectData.getBasics().getCardImage()))
                 .location(projectData.getBasics().getLocation())
                 .subCategory(projectData.getBasics().getSubCategory())
-                .category(Category.valueOf(projectData.getBasics().getCategory())) // Ensure enum value is valid
+                .category(Category.valueOf(projectData.getBasics().getCategory()))
+                .status(Status.PENDING)
                 .user(user)
                 .creationDate(LocalDate.now())
                 .build();

@@ -32,7 +32,7 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private Category category;
     private byte[] imageData;
-
+    private Status status;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
